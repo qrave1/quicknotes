@@ -6,24 +6,24 @@ import (
 )
 
 type Config struct {
-	Server      Server
-	CacheConfig CacheConfig
-	DbConfig    DbConfig
+	Server      server
+	CacheConfig cacheConfig
+	DbConfig    postgresConfig
 }
 
-type Server struct {
+type server struct {
 	Port int `env:"SERVER_PORT" env-default:"8080"`
 }
 
-type CacheConfig struct {
+type cacheConfig struct {
 	DSN string `env:"REDIS_DSN"`
 }
 
-type DbConfig struct {
+type postgresConfig struct {
 	DSN string `env:"POSTGRES_DSN"`
 }
 
-// Load Config from env
+// Load config from env
 func MustLoad() *Config {
 	err := godotenv.Load()
 	if err != nil {

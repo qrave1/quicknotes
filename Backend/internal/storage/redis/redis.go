@@ -7,10 +7,10 @@ import (
 )
 
 type Storage struct {
-	redis *redis.Client
+	Redis *redis.Client
 }
 
-func MustLoad(c *config.Config) *Storage {
+func MustLoad(c *config.config) *Storage {
 	opts, err := redis.ParseURL(c.CacheConfig.DSN)
 	if err != nil {
 		panic(err)
@@ -23,5 +23,5 @@ func MustLoad(c *config.Config) *Storage {
 		panic(err)
 	}
 
-	return &Storage{redis: cli}
+	return &Storage{Redis: cli}
 }

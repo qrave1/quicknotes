@@ -16,8 +16,8 @@ type UserRepo interface {
 }
 
 type UserUsecase interface {
-	Create()
-	Read()
-	Update()
-	Delete()
+	Create(ctx context.Context, u User) error
+	Read(ctx context.Context, id int) (User, error)
+	Update(ctx context.Context, id int, u User) error
+	Delete(ctx context.Context, id int) error
 }

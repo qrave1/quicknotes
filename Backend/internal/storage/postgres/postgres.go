@@ -10,9 +10,13 @@ type Storage struct {
 	DB *sql.DB
 }
 
-func MustLoad(c *config.Config) *Storage {
+func MustLoad(c *config.config) *Storage {
 	db, err := sql.Open("postgres", c.DbConfig.DSN)
 	if err != nil {
+		panic(err)
+	}
+
+	if err = db.Ping(); err != nil {
 		panic(err)
 	}
 

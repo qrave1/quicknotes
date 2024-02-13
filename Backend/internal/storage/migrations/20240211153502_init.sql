@@ -10,11 +10,11 @@ CREATE TABLE users
     password varchar(100) NOT NULL
 );
 
-CREATE TABLE groups
+CREATE TABLE folders
 (
-    group_id serial PRIMARY KEY,
-    name     varchar(50) NOT NULL,
-    user_id  integer,
+    folder_id serial PRIMARY KEY,
+    name      varchar(50) NOT NULL,
+    user_id   integer,
     CONSTRAINT fk_group_user
         FOREIGN KEY (user_id)
             REFERENCES users (user_id)
@@ -25,12 +25,12 @@ CREATE TABLE groups
 
 CREATE TABLE notes
 (
-    title varchar(50) not null,
-    body text not null,
+    title    varchar(50) not null,
+    body     text        not null,
     group_id integer,
     CONSTRAINT fk_note_group
         FOREIGN KEY (group_id)
-            REFERENCES groups (group_id)
+            REFERENCES folders (folder_id)
             ON DELETE CASCADE
             ON UPDATE CASCADE
 );
