@@ -2,9 +2,14 @@ package repository
 
 import (
 	"context"
+	"errors"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/qrave1/quicknotes/internal/domain"
 	"github.com/qrave1/quicknotes/internal/storage/postgres"
+)
+
+var (
+	ErrNotAffected = errors.New("no rows affected")
 )
 
 type UserPostgresRepository struct {
@@ -23,16 +28,16 @@ func NewUserPostgresRepository(
 
 func (ur UserPostgresRepository) Add(ctx context.Context, user domain.User) error {
 	exec, err := ur.psql.Insert("users").
-		Columns("name", "password", "email").
-		Values(user.Name, user.Password, user.Email).
+		Columns("user_id", "name", "password", "email").
+		Values(user.Id, user.Name, user.Password, user.Email).
 		RunWith(ur.DB).
 		Exec()
 	if err != nil {
 		return err
 	}
 
-	if i, err := exec.RowsAffected(); i == 0 {
-		return err
+	if i, _ := exec.RowsAffected(); i == 0 {
+		return ErrNotAffected
 	}
 
 	return nil
@@ -41,7 +46,7 @@ func (ur UserPostgresRepository) Add(ctx context.Context, user domain.User) erro
 func (ur UserPostgresRepository) GetById(ctx context.Context, id int) (domain.User, error) {
 	rows, err := ur.psql.Select("*").
 		From("users").
-		Where(sq.Eq{"id": id}).
+		Where(sq.Eq{"user_id": id}).
 		RunWith(ur.DB).
 		Query()
 	if err != nil {
@@ -57,24 +62,18 @@ func (ur UserPostgresRepository) GetById(ctx context.Context, id int) (domain.Us
 	return user, nil
 }
 
-func (ur UserPostgresRepository) Update(ctx context.Context, id int, user domain.User) error {
-	query := ur.psql.Update("users")
-
-	if user.Name != "" {
-		query = query.Set("name", user.Name)
-	}
-
-	if user.Email != "" {
-		query = query.Set("email", user.Email)
-	}
-
-	exec, err := query.Where("id = ?", id).RunWith(ur.DB).Exec()
+func (ur UserPostgresRepository) UpdatePass(ctx context.Context, id int, hashedPass string) error {
+	exec, err := ur.psql.Update("users").
+		Set("password", hashedPass).
+		Where(sq.Eq{"user_id": id}).
+		RunWith(ur.DB).
+		Exec()
 	if err != nil {
-
+		return err
 	}
 
-	if i, err := exec.RowsAffected(); i == 0 {
-		return err
+	if i, _ := exec.RowsAffected(); i == 0 {
+		return ErrNotAffected
 	}
 
 	return nil
@@ -82,15 +81,15 @@ func (ur UserPostgresRepository) Update(ctx context.Context, id int, user domain
 
 func (ur UserPostgresRepository) Delete(ctx context.Context, id int) error {
 	exec, err := ur.psql.Delete("users").
-		Where(sq.Eq{"id": id}).
+		Where(sq.Eq{"user_id": id}).
 		RunWith(ur.DB).
 		Exec()
 	if err != nil {
 		return err
 	}
 
-	if i, err := exec.RowsAffected(); i == 0 {
-		return err
+	if i, _ := exec.RowsAffected(); i == 0 {
+		return ErrNotAffected
 	}
 
 	return nil

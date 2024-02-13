@@ -10,20 +10,17 @@ type UserUsecase struct {
 }
 
 func (uu UserUsecase) Create(ctx context.Context, u domain.User) error {
-
+	return uu.ur.Add(ctx, u)
 }
 
 func (uu UserUsecase) Read(ctx context.Context, id int) (domain.User, error) {
-	//TODO implement me
-	panic("implement me")
+	return uu.ur.GetById(ctx, id)
 }
 
-func (uu UserUsecase) Update(ctx context.Context, id int, u domain.User) error {
-	//TODO implement me
-	panic("implement me")
+func (uu UserUsecase) Update(ctx context.Context, id int, hashedPass string) error {
+	return uu.ur.UpdatePass(ctx, id, hashedPass)
 }
 
 func (uu UserUsecase) Delete(ctx context.Context, id int) error {
-	//TODO implement me
-	panic("implement me")
+	return uu.ur.Delete(ctx, id)
 }
