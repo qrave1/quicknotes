@@ -9,10 +9,10 @@ type Folder struct {
 }
 
 type FolderRepo interface {
-	Add(context.Context, Folder) error
-	GetById(context.Context, int) (Folder, error)
+	Add(ctx context.Context, f Folder) error
+	GetById(ctx context.Context, id int) (Folder, error)
 	Update(ctx context.Context, id int, f Folder) error
-	Delete(context.Context, int) error
+	Delete(ctx context.Context, id int) error
 }
 
 type FolderUsecase interface {
