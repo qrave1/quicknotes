@@ -7,7 +7,7 @@ CREATE TABLE users
     user_id  serial PRIMARY KEY,
     username varchar(50)  NOT NULL,
     email    VARCHAR(50)  NOT NULL,
-    password varchar(100) NOT NULL
+    password varchar(128) NOT NULL
 );
 
 CREATE TABLE folders
@@ -25,11 +25,12 @@ CREATE TABLE folders
 
 CREATE TABLE notes
 (
+    note_id  serial PRIMARY KEY,
     title    varchar(50) not null,
     body     text        not null,
-    group_id integer,
+    folder_id integer,
     CONSTRAINT fk_note_group
-        FOREIGN KEY (group_id)
+        FOREIGN KEY (folder_id)
             REFERENCES folders (folder_id)
             ON DELETE CASCADE
             ON UPDATE CASCADE
