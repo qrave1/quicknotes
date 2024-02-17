@@ -10,10 +10,10 @@ type User struct {
 }
 
 type UserRepo interface {
-	Add(context.Context, User) error
-	GetById(context.Context, int) (User, error)
+	Add(ctx context.Context, u User) error
+	GetById(ctx context.Context, id int) (User, error)
 	UpdatePass(ctx context.Context, id int, hashedPass string) error
-	Delete(context.Context, int) error
+	Delete(ctx context.Context, id int) error
 }
 
 type UserUsecase interface {
