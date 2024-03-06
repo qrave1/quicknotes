@@ -28,8 +28,8 @@ func NewUserPostgresRepository(
 
 func (ur *UserPostgresRepository) Add(ctx context.Context, user domain.User) error {
 	exec, err := ur.psql.Insert("users").
-		Columns("user_id", "name", "password", "email").
-		Values(user.Id, user.Name, user.Password, user.Email).
+		Columns("name", "password", "email").
+		Values(user.Name, user.Password, user.Email).
 		RunWith(ur.DB).
 		Exec()
 	if err != nil {
@@ -47,6 +47,25 @@ func (ur *UserPostgresRepository) GetById(ctx context.Context, id int) (domain.U
 	rows, err := ur.psql.Select("*").
 		From("users").
 		Where(sq.Eq{"user_id": id}).
+		RunWith(ur.DB).
+		Query()
+	if err != nil {
+		return domain.User{}, err
+	}
+
+	var user domain.User
+	err = rows.Scan(&user)
+	if err != nil {
+		return domain.User{}, err
+	}
+
+	return user, nil
+}
+
+func (ur *UserPostgresRepository) GetByEmail(ctx context.Context, email string) (domain.User, error) {
+	rows, err := ur.psql.Select("*").
+		From("users").
+		Where(sq.Eq{"email": email}).
 		RunWith(ur.DB).
 		Query()
 	if err != nil {

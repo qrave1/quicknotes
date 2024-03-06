@@ -23,8 +23,8 @@ func NewFolderPostgresRepository(
 
 func (fr *FolderPostgresRepository) Add(ctx context.Context, f domain.Folder) error {
 	exec, err := fr.psql.Insert("folders").
-		Columns("folder_id", "name", "user_id").
-		Values(f.Id, f.Name, f.UserId).
+		Columns("name", "user_id").
+		Values(f.Name, f.UserId).
 		RunWith(fr.DB).
 		Exec()
 	if err != nil {

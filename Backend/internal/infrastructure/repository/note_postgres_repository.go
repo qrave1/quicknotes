@@ -21,8 +21,8 @@ func NewNotePostgresRepository(storage *postgres.Storage) *NotePostgresRepositor
 
 func (nr *NotePostgresRepository) Add(ctx context.Context, n domain.Note) error {
 	exec, err := nr.psql.Insert("notes").
-		Columns("note_id", "title", "body", "folder_id").
-		Values(n.Id, n.Title, n.Body, n.FolderId).
+		Columns("title", "body", "folder_id").
+		Values(n.Title, n.Body, n.FolderId).
 		RunWith(nr.DB).
 		Exec()
 	if err != nil {
