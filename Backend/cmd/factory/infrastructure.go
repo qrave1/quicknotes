@@ -1,15 +1,7 @@
 package factory
 
-import (
-	"github.com/qrave1/quicknotes/pkg/logger"
-	"log/slog"
-	"os"
-)
+import "github.com/qrave1/logger-wrapper/logrus"
 
-func provideLogger() *logger.Logger {
-	return &logger.Logger{
-		Logger: slog.New(
-			slog.NewTextHandler(os.Stdout, nil),
-		),
-	}
+func provideLogger() logrus.Logger {
+	return logrus.NewDefaultLogrusWrapper()
 }
