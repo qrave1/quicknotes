@@ -49,6 +49,7 @@ func (a *AuthController) HandleSignUp(c echo.Context) error {
 		return err
 	}
 
+	return c.NoContent(http.StatusCreated)
 }
 
 func (a *AuthController) HandleSignIn(c echo.Context) error {
