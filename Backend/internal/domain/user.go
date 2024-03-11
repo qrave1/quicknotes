@@ -10,9 +10,9 @@ type User struct {
 }
 
 type UserUsecase interface {
-	Create(ctx context.Context, u User) error
+	SignUp(ctx context.Context, user User) error
+	SignIn(ctx context.Context, request User) (string, error)
 	Read(ctx context.Context, id int) (User, error)
-	ReadByEmail(ctx context.Context, email string) (User, error)
 	Update(ctx context.Context, id int, hashedPass string) error
 	Delete(ctx context.Context, id int) error
 }

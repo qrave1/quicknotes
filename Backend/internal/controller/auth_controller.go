@@ -1,12 +1,11 @@
 package controller
 
 import (
-	"context"
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/qrave1/logger-wrapper/logrus"
 	"github.com/qrave1/quicknotes/internal/domain"
-	"github.com/qrave1/quicknotes/internal/usecase/auth"
-	"golang.org/x/crypto/bcrypt"
+	"github.com/qrave1/quicknotes/internal/infrastructure/interfaces/http/dto"
 	"net/http"
 )
 
@@ -17,7 +16,7 @@ type Auth interface {
 
 type AuthController struct {
 	userUsecase domain.UserUsecase
-	auth        auth.Auth
+	validator   validator.Validate
 	log         logrus.Logger
 }
 
@@ -26,25 +25,22 @@ func NewAuthController(uu domain.UserUsecase, log logrus.Logger) *AuthController
 }
 
 func (a *AuthController) HandleSignUp(c echo.Context) error {
-	ctx := context.Background()
+	ctx := c.Request().Context()
 
-	email := c.FormValue("email")
-	username := c.FormValue("username")
-	password := c.FormValue("password")
-
-	passHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	var request dto.SignUpRequest
+	err := c.Bind(&request)
 	if err != nil {
-		a.log.Errorf("error generate hashed password. %v", err)
-		return err
+		a.log.Errorf("error bind signUpRequest. %v", err)
+		return c.NoContent(400)
 	}
 
-	u := domain.User{
-		Name:     username,
-		Email:    email,
-		Password: string(passHash),
+	if err = a.validator.Struct(request); err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
 	}
 
-	if err = a.userUsecase.Create(ctx, u); err != nil {
+	user := dto.UserFromDTO(&request)
+
+	if err = a.userUsecase.SignUp(ctx, user); err != nil {
 		a.log.Errorf("error create new user. %v", err)
 		return err
 	}
@@ -55,26 +51,26 @@ func (a *AuthController) HandleSignUp(c echo.Context) error {
 func (a *AuthController) HandleSignIn(c echo.Context) error {
 	ctx := c.Request().Context()
 
-	email := c.FormValue("email")
-	password := c.FormValue("password")
-
-	u, err := a.userUsecase.ReadByEmail(ctx, email)
+	var request dto.SignInRequest
+	err := c.Bind(&request)
 	if err != nil {
-		return err
+		a.log.Errorf("error bind signInRequest. %v", err)
+		return c.NoContent(400)
 	}
 
-	if err = bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password)); err != nil {
-		a.log.Infof("invalid credentials. user_id=%d", u.Id)
-		return err
+	if err = a.validator.Struct(request); err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
 	}
 
-	t, err := a.auth.Generate(u.Id)
+	user := dto.UserFromDTO(&request)
+
+	token, err := a.userUsecase.SignIn(ctx, user)
 	if err != nil {
-		a.log.Warnf("error create jwt token. %v", err)
+		a.log.Errorf("error create new user. %v", err)
 		return err
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{
-		"token": t,
+		"token": token,
 	})
 }

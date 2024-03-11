@@ -11,59 +11,33 @@ type Folder interface {
 	HandleReadFolder(c echo.Context) error
 	HandleUpdateFolder(c echo.Context) error
 	HandleDeleteFolder(c echo.Context) error
-
-	HandleCreateNote(c echo.Context) error
-	HandleReadNote(c echo.Context) error
-	HandleUpdateNote(c echo.Context) error
-	HandleDeleteNote(c echo.Context) error
 }
 
 type FolderController struct {
 	fu  domain.FolderUsecase
-	nu  domain.NoteUsecase
 	log logrus.Logger
 }
 
-func NewFolderController(fu domain.FolderUsecase, nu domain.NoteUsecase, log logrus.Logger) *FolderController {
-	return &FolderController{fu: fu, nu: nu, log: log}
+func NewFolderController(fu domain.FolderUsecase, log logrus.Logger) *FolderController {
+	return &FolderController{fu: fu, log: log}
 }
 
-func (f FolderController) HandleCreateFolder(c echo.Context) error {
+func (f *FolderController) HandleCreateFolder(c echo.Context) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (f FolderController) HandleReadFolder(c echo.Context) error {
+func (f *FolderController) HandleReadFolder(c echo.Context) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (f FolderController) HandleUpdateFolder(c echo.Context) error {
+func (f *FolderController) HandleUpdateFolder(c echo.Context) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (f FolderController) HandleDeleteFolder(c echo.Context) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (f FolderController) HandleCreateNote(c echo.Context) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (f FolderController) HandleReadNote(c echo.Context) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (f FolderController) HandleUpdateNote(c echo.Context) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (f FolderController) HandleDeleteNote(c echo.Context) error {
+func (f *FolderController) HandleDeleteFolder(c echo.Context) error {
 	//TODO implement me
 	panic("implement me")
 }
@@ -78,5 +52,5 @@ func (f FolderController) HandleDeleteNote(c echo.Context) error {
 //	}
 //
 //	request.UserId = c.Get()
-//	f.fu.Create(ctx)
+//	f.fu.SignIn(ctx)
 //}

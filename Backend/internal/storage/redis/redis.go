@@ -6,11 +6,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-type Storage struct {
-	Redis *redis.Client
-}
-
-func MustLoad(c *config.config) *Storage {
+func MustLoad(c *config.Config) *redis.Client {
 	opts, err := redis.ParseURL(c.CacheConfig.DSN)
 	if err != nil {
 		panic(err)
@@ -23,5 +19,5 @@ func MustLoad(c *config.config) *Storage {
 		panic(err)
 	}
 
-	return &Storage{Redis: cli}
+	return cli
 }
