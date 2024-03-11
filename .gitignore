@@ -23,3 +23,8 @@ go.work
 .idea
 
 Backend/.env
+
+
+# Frontend
+
+Frontend/node_modules
