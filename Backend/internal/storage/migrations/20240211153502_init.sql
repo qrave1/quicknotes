@@ -15,7 +15,7 @@ CREATE TABLE folders
     folder_id serial PRIMARY KEY,
     name      varchar(50) NOT NULL,
     user_id   integer,
-    CONSTRAINT fk_group_user
+    CONSTRAINT fk_folder_user
         FOREIGN KEY (user_id)
             REFERENCES users (user_id)
             ON DELETE CASCADE
@@ -29,7 +29,7 @@ CREATE TABLE notes
     title    varchar(50) not null,
     body     text        not null,
     folder_id integer,
-    CONSTRAINT fk_note_group
+    CONSTRAINT fk_note_folder
         FOREIGN KEY (folder_id)
             REFERENCES folders (folder_id)
             ON DELETE CASCADE
@@ -39,5 +39,7 @@ CREATE TABLE notes
 
 -- +goose Down
 -- +goose StatementBegin
-SELECT 'down SQL query';
+DROP TABLE IF EXISTS notes;
+DROP TABLE IF EXISTS folders;
+DROP TABLE IF EXISTS users;
 -- +goose StatementEnd

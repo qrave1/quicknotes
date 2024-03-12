@@ -44,9 +44,7 @@ func (f *FolderController) HandleCreateFolder(c echo.Context) error {
 
 	if err := f.folderUsecase.Create(ctx, folder); err != nil {
 		f.log.Errorf("error create folder. %v", err)
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": err.Error(),
-		})
+		return err
 	}
 
 	return c.NoContent(http.StatusCreated)
@@ -74,21 +72,18 @@ func (f *FolderController) HandleReadFolder(c echo.Context) error {
 func (f *FolderController) HandleUpdateFolder(c echo.Context) error {
 	ctx := c.Request().Context()
 
-	v := c.Param("id")
-	id, err := strconv.Atoi(v)
-	if err != nil {
+	var request dto.UpdateFolderRequest
+	if err := c.Bind(request); err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
-	var request dto.CreateFolderRequest
-	if err = c.Bind(request); err != nil {
+	if err := c.Validate(request); err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
 	folder := dto.FolderFromDTO(request)
-	folder.Id = id
 
-	if err = f.folderUsecase.Update(ctx, folder); err != nil {
+	if err := f.folderUsecase.Update(ctx, folder); err != nil {
 		return err
 	}
 

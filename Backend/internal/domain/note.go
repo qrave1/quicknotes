@@ -12,6 +12,6 @@ type Note struct {
 type NoteUsecase interface {
 	Create(ctx context.Context, n Note) error
 	Read(ctx context.Context, id int) (Note, error)
-	Update(ctx context.Context, id int, n Note) error
+	Update(ctx context.Context, n Note) error
 	Delete(ctx context.Context, id int) error
 }

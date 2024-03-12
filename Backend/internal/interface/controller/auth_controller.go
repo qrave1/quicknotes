@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/qrave1/logger-wrapper/logrus"
 	"github.com/qrave1/quicknotes/internal/domain"
@@ -16,7 +15,6 @@ type Auth interface {
 
 type AuthController struct {
 	userUsecase domain.UserUsecase
-	validator   validator.Validate
 	log         logrus.Logger
 }
 
@@ -33,7 +31,7 @@ func (a *AuthController) HandleSignUp(c echo.Context) error {
 		return c.NoContent(400)
 	}
 
-	if err := a.validator.Struct(request); err != nil {
+	if err := c.Validate(request); err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
 	}
 
@@ -56,7 +54,7 @@ func (a *AuthController) HandleSignIn(c echo.Context) error {
 		return c.NoContent(400)
 	}
 
-	if err := a.validator.Struct(request); err != nil {
+	if err := c.Validate(request); err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
 	}
 

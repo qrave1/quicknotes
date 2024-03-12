@@ -1,7 +1,7 @@
 package factory
 
-import "github.com/go-playground/validator/v10"
+import "github.com/qrave1/quicknotes/pkg/validator"
 
-func provideValidator() *validator.Validate {
+func provideValidator() validator.Validator {
 	return validator.New()
 }

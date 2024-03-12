@@ -24,7 +24,7 @@ func (nr *NotePostgresRepository) Add(ctx context.Context, n domain.Note) error 
 		Columns("title", "body", "folder_id").
 		Values(n.Title, n.Body, n.FolderId).
 		RunWith(nr.DB).
-		Exec()
+		ExecContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -41,7 +41,7 @@ func (nr *NotePostgresRepository) GetById(ctx context.Context, id int) (domain.N
 		From("notes").
 		Where(sq.Eq{"note_id": id}).
 		RunWith(nr.DB).
-		Query()
+		QueryContext(ctx)
 	if err != nil {
 		return domain.Note{}, err
 	}
@@ -55,7 +55,7 @@ func (nr *NotePostgresRepository) GetById(ctx context.Context, id int) (domain.N
 	return note, nil
 }
 
-func (nr *NotePostgresRepository) Update(ctx context.Context, id int, n domain.Note) error {
+func (nr *NotePostgresRepository) Update(ctx context.Context, n domain.Note) error {
 	query := nr.psql.Update("notes")
 
 	if n.Title != "" {
@@ -66,7 +66,7 @@ func (nr *NotePostgresRepository) Update(ctx context.Context, id int, n domain.N
 		query = query.Set("body", n.Body)
 	}
 
-	exec, err := query.Where(sq.Eq{"note_id": id}).RunWith(nr.DB).Exec()
+	exec, err := query.Where(sq.Eq{"note_id": n.Id}).RunWith(nr.DB).ExecContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -82,7 +82,7 @@ func (nr *NotePostgresRepository) Delete(ctx context.Context, id int) error {
 	exec, err := nr.psql.Delete("notes").
 		Where(sq.Eq{"note_id": id}).
 		RunWith(nr.DB).
-		Exec()
+		ExecContext(ctx)
 	if err != nil {
 		return err
 	}
