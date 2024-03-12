@@ -26,7 +26,7 @@ func (fr *FolderPostgresRepository) Add(ctx context.Context, f domain.Folder) er
 		Columns("name", "user_id").
 		Values(f.Name, f.UserId).
 		RunWith(fr.DB).
-		Exec()
+		ExecContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -43,7 +43,7 @@ func (fr *FolderPostgresRepository) GetById(ctx context.Context, id int) (domain
 		From("folders").
 		Where(sq.Eq{"folder_id": id}).
 		RunWith(fr.DB).
-		Query()
+		QueryContext(ctx)
 	if err != nil {
 		return domain.Folder{}, err
 	}
@@ -57,14 +57,14 @@ func (fr *FolderPostgresRepository) GetById(ctx context.Context, id int) (domain
 	return folder, nil
 }
 
-func (fr *FolderPostgresRepository) Update(ctx context.Context, id int, f domain.Folder) error {
+func (fr *FolderPostgresRepository) Update(ctx context.Context, f domain.Folder) error {
 	query := fr.psql.Update("folders")
 
 	if f.Name != "" {
 		query = query.Set("name", f.Name)
 	}
 
-	exec, err := query.Where(sq.Eq{"folder_id": id}).RunWith(fr.DB).Exec()
+	exec, err := query.Where(sq.Eq{"folder_id": f.Id}).RunWith(fr.DB).ExecContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -80,7 +80,7 @@ func (fr *FolderPostgresRepository) Delete(ctx context.Context, id int) error {
 	exec, err := fr.psql.Delete("folders").
 		Where(sq.Eq{"folder_id": id}).
 		RunWith(fr.DB).
-		Exec()
+		ExecContext(ctx)
 	if err != nil {
 		return err
 	}

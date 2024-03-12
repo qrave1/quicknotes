@@ -1,21 +1,19 @@
 package middleware
 
 import (
-	"context"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
-	"github.com/qrave1/quicknotes/internal/usecase/repositories"
+	"github.com/qrave1/quicknotes/internal/usecase/auth"
 	"net/http"
 	"strconv"
 )
 
 const (
 	authorizationHeader = "X-Auth-Token"
-	CurrentUserKey      = "userId"
 )
 
-func JwtMiddleware(secret []byte, accountsRepository repositories.User) echo.MiddlewareFunc {
+func JwtMiddleware(secret []byte) echo.MiddlewareFunc {
 	return echojwt.WithConfig(echojwt.Config{
 		//BeforeFunc: func(e echo.Context) {
 		//	e.Request().Header.Set(authorizationHeader, "Bearer "+e.Request().Header.Get(authorizationHeader))
@@ -40,7 +38,8 @@ func JwtMiddleware(secret []byte, accountsRepository repositories.User) echo.Mid
 			if err != nil {
 				return
 			}
-			ctx := context.WithValue(c.Request().Context(), CurrentUserKey, id)
+
+			ctx := auth.SetUserId(c.Request().Context(), id)
 			c.SetRequest(c.Request().WithContext(ctx))
 			//c.Set(CurrentUserKey, claims.Subject)
 		},

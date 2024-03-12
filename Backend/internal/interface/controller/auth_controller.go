@@ -28,19 +28,18 @@ func (a *AuthController) HandleSignUp(c echo.Context) error {
 	ctx := c.Request().Context()
 
 	var request dto.SignUpRequest
-	err := c.Bind(&request)
-	if err != nil {
+	if err := c.Bind(&request); err != nil {
 		a.log.Errorf("error bind signUpRequest. %v", err)
 		return c.NoContent(400)
 	}
 
-	if err = a.validator.Struct(request); err != nil {
+	if err := a.validator.Struct(request); err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
 	}
 
 	user := dto.UserFromDTO(&request)
 
-	if err = a.userUsecase.SignUp(ctx, user); err != nil {
+	if err := a.userUsecase.SignUp(ctx, user); err != nil {
 		a.log.Errorf("error create new user. %v", err)
 		return err
 	}
@@ -52,13 +51,12 @@ func (a *AuthController) HandleSignIn(c echo.Context) error {
 	ctx := c.Request().Context()
 
 	var request dto.SignInRequest
-	err := c.Bind(&request)
-	if err != nil {
+	if err := c.Bind(&request); err != nil {
 		a.log.Errorf("error bind signInRequest. %v", err)
 		return c.NoContent(400)
 	}
 
-	if err = a.validator.Struct(request); err != nil {
+	if err := a.validator.Struct(request); err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
 	}
 

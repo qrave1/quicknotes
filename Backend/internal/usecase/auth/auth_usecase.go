@@ -2,17 +2,25 @@ package auth
 
 import (
 	"context"
-	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/qrave1/logger-wrapper/logrus"
-	"github.com/qrave1/quicknotes/internal/infrastructure/interfaces/http/middleware"
 	"strconv"
 	"time"
 )
 
+const CurrentUserKey = "userId"
+
+func UserIdFromCtx(ctx context.Context) int {
+	return ctx.Value(CurrentUserKey).(int)
+}
+
+func SetUserId(ctx context.Context, id int) context.Context {
+	return context.WithValue(ctx, CurrentUserKey, id)
+}
+
 type Auth interface {
 	Generate(userId int) (string, error)
-	Inspect(ctx context.Context, token string) (bool, error)
+	//Inspect(ctx context.Context, token string) (bool, error)
 }
 
 type AuthImpl struct {
@@ -38,30 +46,30 @@ func (a *AuthImpl) Generate(userId int) (string, error) {
 	return t, nil
 }
 
-func (a *AuthImpl) Inspect(ctx context.Context, token string) (bool, error) {
-	t, err := jwt.ParseWithClaims(token, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return a.secret, nil
-	})
-	if err != nil {
-		return false, err
-	}
-
-	claims, ok := t.Claims.(*jwt.RegisteredClaims)
-	if !ok || !t.Valid {
-		a.log.Warn("error cast to claims")
-		return false, fmt.Errorf("error cast to claims")
-	}
-
-	currentId := ctx.Value(middleware.CurrentUserKey)
-	id, err := strconv.Atoi(claims.Subject)
-	if err != nil {
-		a.log.Warn("error convert subject to int")
-		return false, fmt.Errorf("error convert claims to int")
-	}
-
-	if currentId == 0 || currentId != id {
-		return false, fmt.Errorf("wrong subjest")
-	}
-
-	return true, nil
-}
+//func (a *AuthImpl) Inspect(ctx context.Context, token string) (bool, error) {
+//	t, err := jwt.ParseWithClaims(token, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
+//		return a.secret, nil
+//	})
+//	if err != nil {
+//		return false, err
+//	}
+//
+//	claims, ok := t.Claims.(*jwt.RegisteredClaims)
+//	if !ok || !t.Valid {
+//		a.log.Warn("error cast to claims")
+//		return false, fmt.Errorf("error cast to claims")
+//	}
+//
+//	currentId := UserIdFromCtx(ctx)
+//	id, err := strconv.Atoi(claims.Subject)
+//	if err != nil {
+//		a.log.Warn("error convert subject to int")
+//		return false, fmt.Errorf("error convert claims to int")
+//	}
+//
+//	if currentId == 0 || currentId != id {
+//		return false, fmt.Errorf("wrong subjest")
+//	}
+//
+//	return true, nil
+//}
