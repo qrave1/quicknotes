@@ -12,7 +12,7 @@ type Config struct {
 }
 
 type server struct {
-	Port   int    `env:"SERVER_PORT" env-default:"8080"`
+	Port   string `env:"SERVER_PORT" env-default:"8080"`
 	Secret string `env:"SERVER_SECRET"`
 }
 

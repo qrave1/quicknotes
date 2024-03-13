@@ -14,18 +14,22 @@ func NewNoteUsecase(nr repositories.Note) *NoteUsecase {
 	return &NoteUsecase{noteRepo: nr}
 }
 
-func (nu *NoteUsecase) Create(ctx context.Context, n domain.Note) error {
-	return nu.noteRepo.Add(ctx, n)
+func (n *NoteUsecase) Create(ctx context.Context, note domain.Note) error {
+	return n.noteRepo.Add(ctx, note)
 }
 
-func (nu *NoteUsecase) Read(ctx context.Context, id int) (domain.Note, error) {
-	return nu.noteRepo.GetById(ctx, id)
+func (n *NoteUsecase) Read(ctx context.Context, id int) (domain.Note, error) {
+	return n.noteRepo.GetById(ctx, id)
 }
 
-func (nu *NoteUsecase) Update(ctx context.Context, n domain.Note) error {
-	return nu.noteRepo.Update(ctx, n)
+func (n *NoteUsecase) ReadAll(ctx context.Context, folderId int) ([]domain.Note, error) {
+	return n.noteRepo.GetAll(ctx, folderId)
 }
 
-func (nu *NoteUsecase) Delete(ctx context.Context, id int) error {
-	return nu.noteRepo.Delete(ctx, id)
+func (n *NoteUsecase) Update(ctx context.Context, note domain.Note) error {
+	return n.noteRepo.Update(ctx, note)
+}
+
+func (n *NoteUsecase) Delete(ctx context.Context, id int) error {
+	return n.noteRepo.Delete(ctx, id)
 }

@@ -12,6 +12,7 @@ import (
 type Note interface {
 	HandleCreateNote(c echo.Context) error
 	HandleReadNote(c echo.Context) error
+	HandleReadAll(c echo.Context) error
 	HandleUpdateNote(c echo.Context) error
 	HandleDeleteNote(c echo.Context) error
 }
@@ -66,6 +67,29 @@ func (n *NoteController) HandleReadNote(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"note": note,
+	})
+}
+
+func (n *NoteController) HandleReadAll(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	var request dto.DefaultNoteRequest
+	if err := c.Bind(&request); err != nil {
+		n.log.Errorf("error bind create note request. %v", err)
+		return c.NoContent(http.StatusBadRequest)
+	}
+
+	if err := c.Validate(request); err != nil {
+		return c.NoContent(http.StatusBadRequest)
+	}
+
+	notes, err := n.noteUsecase.ReadAll(ctx, request.FolderId)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"notes": notes,
 	})
 }
 

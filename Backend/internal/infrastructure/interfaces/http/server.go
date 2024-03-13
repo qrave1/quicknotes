@@ -1,6 +1,8 @@
 package http
 
 import (
+	"context"
+	"fmt"
 	"github.com/labstack/echo/v4"
 	echomiddleware "github.com/labstack/echo/v4/middleware"
 	"github.com/qrave1/quicknotes/internal/config"
@@ -39,4 +41,23 @@ func NewServer(
 		folders.PUT("/:id", folderController.HandleUpdateFolder)
 		folders.DELETE("/:id", folderController.HandleDeleteFolder)
 	}
+
+	notes := s.e.Group("folders/:folder_id/notes", jwt)
+	{
+		notes.GET("/:id", noteController.HandleReadNote)
+		notes.GET("/", noteController.HandleReadAll)
+		notes.POST("/", noteController.HandleCreateNote)
+		notes.PUT("/:id", noteController.HandleUpdateNote)
+		notes.DELETE("/:id", noteController.HandleDeleteNote)
+	}
+
+	return s
+}
+
+func (s *Server) Run(cfg *config.Config) {
+	go s.e.Start(fmt.Sprintf(":%s", cfg.Server.Port))
+}
+
+func (s *Server) Shutdown() {
+	_ = s.e.Shutdown(context.Background())
 }

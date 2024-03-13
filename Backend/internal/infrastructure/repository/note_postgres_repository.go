@@ -19,11 +19,11 @@ func NewNotePostgresRepository(storage *postgres.Storage) *NotePostgresRepositor
 	}
 }
 
-func (nr *NotePostgresRepository) Add(ctx context.Context, n domain.Note) error {
-	exec, err := nr.psql.Insert("notes").
+func (n *NotePostgresRepository) Add(ctx context.Context, note domain.Note) error {
+	exec, err := n.psql.Insert("notes").
 		Columns("title", "body", "folder_id").
-		Values(n.Title, n.Body, n.FolderId).
-		RunWith(nr.DB).
+		Values(note.Title, note.Body, note.FolderId).
+		RunWith(n.DB).
 		ExecContext(ctx)
 	if err != nil {
 		return err
@@ -36,11 +36,11 @@ func (nr *NotePostgresRepository) Add(ctx context.Context, n domain.Note) error 
 	return nil
 }
 
-func (nr *NotePostgresRepository) GetById(ctx context.Context, id int) (domain.Note, error) {
-	rows, err := nr.psql.Select("*").
+func (n *NotePostgresRepository) GetById(ctx context.Context, id int) (domain.Note, error) {
+	rows, err := n.psql.Select("*").
 		From("notes").
 		Where(sq.Eq{"note_id": id}).
-		RunWith(nr.DB).
+		RunWith(n.DB).
 		QueryContext(ctx)
 	if err != nil {
 		return domain.Note{}, err
@@ -55,18 +55,37 @@ func (nr *NotePostgresRepository) GetById(ctx context.Context, id int) (domain.N
 	return note, nil
 }
 
-func (nr *NotePostgresRepository) Update(ctx context.Context, n domain.Note) error {
-	query := nr.psql.Update("notes")
-
-	if n.Title != "" {
-		query = query.Set("title", n.Title)
+func (n *NotePostgresRepository) GetAll(ctx context.Context, folderId int) ([]domain.Note, error) {
+	rows, err := n.psql.Select("*").From("notes").
+		Join("folders ON notes.folder_id = folders.id").
+		Where(sq.Eq{"folders.id": folderId}).
+		RunWith(n.DB).
+		QueryContext(ctx)
+	if err != nil {
+		return nil, err
 	}
 
-	if n.Body != "" {
-		query = query.Set("body", n.Body)
+	var notes []domain.Note
+	err = rows.Scan(&notes)
+	if err != nil {
+		return nil, err
 	}
 
-	exec, err := query.Where(sq.Eq{"note_id": n.Id}).RunWith(nr.DB).ExecContext(ctx)
+	return notes, nil
+}
+
+func (n *NotePostgresRepository) Update(ctx context.Context, note domain.Note) error {
+	query := n.psql.Update("notes")
+
+	if note.Title != "" {
+		query = query.Set("title", note.Title)
+	}
+
+	if note.Body != "" {
+		query = query.Set("body", note.Body)
+	}
+
+	exec, err := query.Where(sq.Eq{"note_id": note.Id}).RunWith(n.DB).ExecContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -78,10 +97,10 @@ func (nr *NotePostgresRepository) Update(ctx context.Context, n domain.Note) err
 	return nil
 }
 
-func (nr *NotePostgresRepository) Delete(ctx context.Context, id int) error {
-	exec, err := nr.psql.Delete("notes").
+func (n *NotePostgresRepository) Delete(ctx context.Context, id int) error {
+	exec, err := n.psql.Delete("notes").
 		Where(sq.Eq{"note_id": id}).
-		RunWith(nr.DB).
+		RunWith(n.DB).
 		ExecContext(ctx)
 	if err != nil {
 		return err
