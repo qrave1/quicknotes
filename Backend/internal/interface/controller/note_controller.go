@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/qrave1/logger-wrapper/logrus"
+	"github.com/qrave1/logwrap"
 	"github.com/qrave1/quicknotes/internal/domain"
 	"github.com/qrave1/quicknotes/internal/infrastructure/interfaces/http/dto"
 	"net/http"
@@ -19,10 +19,10 @@ type Note interface {
 
 type NoteController struct {
 	noteUsecase domain.NoteUsecase
-	log         logrus.Logger
+	log         logwrap.Logger
 }
 
-func NewNoteController(nu domain.NoteUsecase, log logrus.Logger) *NoteController {
+func NewNoteController(nu domain.NoteUsecase, log logwrap.Logger) *NoteController {
 	return &NoteController{noteUsecase: nu, log: log}
 }
 

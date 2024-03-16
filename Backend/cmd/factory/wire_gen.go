@@ -11,21 +11,25 @@ import (
 	"github.com/qrave1/quicknotes/internal/infrastructure/interfaces/http"
 )
 
+import (
+	_ "github.com/lib/pq"
+)
+
 // Injectors from wire.go:
 
 func InitializeService() (NoteService, func(), error) {
 	config := provideConfig()
 	validator := provideValidator()
-	db := mustProvideDB(config)
-	userPostgresRepository := provideUserRepository(db)
-	client := mustProvideRedis(config)
-	authTokenRedisRepository := provideTokenRepository(client)
 	logger := provideLogger()
+	db := mustProvideDB(config, logger)
+	userPostgresRepository := provideUserRepository(db)
+	client := mustProvideRedis(config, logger)
+	authTokenRedisRepository := provideTokenRepository(client)
 	authService := provideAuthUsecase(config, logger)
 	userService := provideUserUsecase(userPostgresRepository, authTokenRedisRepository, authService, logger)
 	authController := provideAuthController(userService, logger)
 	folderPostgresRepository := provideFolderRepository(db)
-	folderService := provideFolderUsecase(folderPostgresRepository)
+	folderService := provideFolderUsecase(folderPostgresRepository, logger)
 	folderController := provideFolderController(folderService, logger)
 	notePostgresRepository := provideNoteRepository(db)
 	noteService := provideNoteUsecase(notePostgresRepository)
@@ -42,7 +46,8 @@ func InitializeService() (NoteService, func(), error) {
 
 func InitializeMigrationContainer() (MigrationContainer, func(), error) {
 	config := provideConfig()
-	db := mustProvideDB(config)
+	logger := provideLogger()
+	db := mustProvideDB(config, logger)
 	migrationContainer := provideMigrationContainer(db)
 	return migrationContainer, func() {
 	}, nil

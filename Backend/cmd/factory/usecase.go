@@ -2,7 +2,7 @@ package factory
 
 import (
 	"github.com/google/wire"
-	"github.com/qrave1/logger-wrapper/logrus"
+	"github.com/qrave1/logwrap"
 	"github.com/qrave1/quicknotes/internal/config"
 	"github.com/qrave1/quicknotes/internal/domain"
 	"github.com/qrave1/quicknotes/internal/infrastructure/repository"
@@ -29,19 +29,19 @@ func provideNoteUsecase(nr repositories.Note) *usecase.NoteService {
 	return usecase.NewNoteService(nr)
 }
 
-func provideFolderUsecase(fr repositories.Folder) *usecase.FolderService {
-	return usecase.NewFolderService(fr)
+func provideFolderUsecase(fr repositories.Folder, log logwrap.Logger) *usecase.FolderService {
+	return usecase.NewFolderService(fr, log)
 }
 
 func provideUserUsecase(
 	userRepo repositories.User,
 	tokenRepo repository.AuthToken,
 	auth auth.Auth,
-	log logrus.Logger,
+	log logwrap.Logger,
 ) *usecase.UserService {
 	return usecase.NewUserService(userRepo, tokenRepo, auth, log)
 }
 
-func provideAuthUsecase(cfg *config.Config, log logrus.Logger) *auth.AuthService {
+func provideAuthUsecase(cfg *config.Config, log logwrap.Logger) *auth.AuthService {
 	return auth.NewAuthService(cfg.Server.Secret, log)
 }

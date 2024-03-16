@@ -3,7 +3,7 @@ package auth
 import (
 	"context"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/qrave1/logger-wrapper/logrus"
+	"github.com/qrave1/logwrap"
 	"strconv"
 	"time"
 )
@@ -25,10 +25,10 @@ type Auth interface {
 
 type AuthService struct {
 	secret string
-	log    logrus.Logger
+	log    logwrap.Logger
 }
 
-func NewAuthService(secret string, log logrus.Logger) *AuthService {
+func NewAuthService(secret string, log logwrap.Logger) *AuthService {
 	return &AuthService{secret: secret, log: log}
 }
 

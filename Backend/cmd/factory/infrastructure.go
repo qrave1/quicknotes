@@ -1,7 +1,10 @@
 package factory
 
-import "github.com/qrave1/logger-wrapper/logrus"
+import (
+	"github.com/qrave1/logwrap"
+	"github.com/qrave1/logwrap/logrus"
+)
 
-func provideLogger() logrus.Logger {
-	return logrus.NewDefaultLogrusWrapper()
+func provideLogger() logwrap.Logger {
+	return logrus.NewDefaultPrettyWrapper()
 }

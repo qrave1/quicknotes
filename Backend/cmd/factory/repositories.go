@@ -3,6 +3,9 @@ package factory
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"github.com/qrave1/logwrap"
+
 	"github.com/google/wire"
 	_ "github.com/lib/pq"
 	"github.com/qrave1/quicknotes/internal/config"
@@ -28,20 +31,22 @@ var repositorySet = wire.NewSet(
 	provideUserRepository,
 )
 
-func mustProvideDB(cfg *config.Config) *sql.DB {
+func mustProvideDB(cfg *config.Config, log logwrap.Logger) *sql.DB {
 	db, err := sql.Open("postgres", cfg.DbConfig.DSN)
 	if err != nil {
 		panic(err)
 	}
 
 	if err = db.Ping(); err != nil {
-		panic(err)
+		panic(fmt.Errorf("error ping postgres db. %w", err))
 	}
+
+	log.Info("successfully connected to postgres db")
 
 	return db
 }
 
-func mustProvideRedis(cfg *config.Config) *redis.Client {
+func mustProvideRedis(cfg *config.Config, log logwrap.Logger) *redis.Client {
 	opts, err := redis.ParseURL(cfg.CacheConfig.DSN)
 	if err != nil {
 		panic(err)
@@ -51,8 +56,10 @@ func mustProvideRedis(cfg *config.Config) *redis.Client {
 
 	err = cli.Ping(context.Background()).Err()
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("error ping redis db. %w", err))
 	}
+
+	log.Info("successfully connected to redis db")
 
 	return cli
 }

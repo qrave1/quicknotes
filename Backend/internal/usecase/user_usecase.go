@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/qrave1/logger-wrapper/logrus"
+	"github.com/qrave1/logwrap"
 	"github.com/qrave1/quicknotes/internal/domain"
 	"github.com/qrave1/quicknotes/internal/infrastructure/repository"
 	"github.com/qrave1/quicknotes/internal/usecase/auth"
@@ -16,14 +16,14 @@ type UserService struct {
 	userRepo  repositories.User
 	tokenRepo repository.AuthToken
 	auth      auth.Auth
-	log       logrus.Logger
+	log       logwrap.Logger
 }
 
 func NewUserService(
 	userRepo repositories.User,
 	tokenRepo repository.AuthToken,
 	auth auth.Auth,
-	log logrus.Logger,
+	log logwrap.Logger,
 ) *UserService {
 	return &UserService{userRepo: userRepo, tokenRepo: tokenRepo, auth: auth, log: log}
 }

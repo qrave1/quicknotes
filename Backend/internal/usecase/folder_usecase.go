@@ -3,7 +3,7 @@ package usecase
 import (
 	"context"
 	"fmt"
-	"github.com/qrave1/logger-wrapper/logrus"
+	"github.com/qrave1/logwrap"
 	"github.com/qrave1/quicknotes/internal/domain"
 	"github.com/qrave1/quicknotes/internal/interface/errors"
 	"github.com/qrave1/quicknotes/internal/usecase/auth"
@@ -12,11 +12,11 @@ import (
 
 type FolderService struct {
 	folderRepo repositories.Folder
-	log        logrus.Logger
+	log        logwrap.Logger
 }
 
-func NewFolderService(fr repositories.Folder) *FolderService {
-	return &FolderService{folderRepo: fr}
+func NewFolderService(fr repositories.Folder, log logwrap.Logger) *FolderService {
+	return &FolderService{folderRepo: fr, log: log}
 }
 
 func (f *FolderService) Create(ctx context.Context, folder domain.Folder) error {

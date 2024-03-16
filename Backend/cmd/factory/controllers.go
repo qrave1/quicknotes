@@ -2,7 +2,7 @@ package factory
 
 import (
 	"github.com/google/wire"
-	"github.com/qrave1/logger-wrapper/logrus"
+	"github.com/qrave1/logwrap"
 	"github.com/qrave1/quicknotes/internal/domain"
 	"github.com/qrave1/quicknotes/internal/interface/controller"
 )
@@ -18,14 +18,14 @@ var controllerSet = wire.NewSet(
 	provideAuthController,
 )
 
-func provideNoteController(nu domain.NoteUsecase, log logrus.Logger) *controller.NoteController {
+func provideNoteController(nu domain.NoteUsecase, log logwrap.Logger) *controller.NoteController {
 	return controller.NewNoteController(nu, log)
 }
 
-func provideFolderController(fu domain.FolderUsecase, log logrus.Logger) *controller.FolderController {
+func provideFolderController(fu domain.FolderUsecase, log logwrap.Logger) *controller.FolderController {
 	return controller.NewFolderController(fu, log)
 }
 
-func provideAuthController(uu domain.UserUsecase, log logrus.Logger) *controller.AuthController {
+func provideAuthController(uu domain.UserUsecase, log logwrap.Logger) *controller.AuthController {
 	return controller.NewAuthController(uu, log)
 }

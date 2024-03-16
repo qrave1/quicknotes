@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/qrave1/logger-wrapper/logrus"
+	"github.com/qrave1/logwrap"
 	"github.com/qrave1/quicknotes/internal/domain"
 	"github.com/qrave1/quicknotes/internal/infrastructure/interfaces/http/dto"
 	"net/http"
@@ -15,10 +15,10 @@ type Auth interface {
 
 type AuthController struct {
 	userUsecase domain.UserUsecase
-	log         logrus.Logger
+	log         logwrap.Logger
 }
 
-func NewAuthController(uu domain.UserUsecase, log logrus.Logger) *AuthController {
+func NewAuthController(uu domain.UserUsecase, log logwrap.Logger) *AuthController {
 	return &AuthController{userUsecase: uu, log: log}
 }
 

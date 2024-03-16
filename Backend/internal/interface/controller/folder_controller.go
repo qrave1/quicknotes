@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/qrave1/logger-wrapper/logrus"
+	"github.com/qrave1/logwrap"
 	"github.com/qrave1/quicknotes/internal/domain"
 	"github.com/qrave1/quicknotes/internal/infrastructure/interfaces/http/dto"
 	"github.com/qrave1/quicknotes/internal/usecase/auth"
@@ -19,10 +19,10 @@ type Folder interface {
 
 type FolderController struct {
 	folderUsecase domain.FolderUsecase
-	log           logrus.Logger
+	log           logwrap.Logger
 }
 
-func NewFolderController(fu domain.FolderUsecase, log logrus.Logger) *FolderController {
+func NewFolderController(fu domain.FolderUsecase, log logwrap.Logger) *FolderController {
 	return &FolderController{folderUsecase: fu, log: log}
 }
 

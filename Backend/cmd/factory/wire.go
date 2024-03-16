@@ -41,6 +41,7 @@ func InitializeMigrationContainer() (MigrationContainer, func(), error) {
 	panic(
 		wire.Build(
 			provideConfig,
+			provideLogger,
 			mustProvideDB,
 			provideMigrationContainer,
 		),
