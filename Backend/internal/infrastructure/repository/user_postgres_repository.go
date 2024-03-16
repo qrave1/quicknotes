@@ -2,10 +2,10 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/qrave1/quicknotes/internal/domain"
-	"github.com/qrave1/quicknotes/internal/storage/postgres"
 )
 
 var (
@@ -13,16 +13,14 @@ var (
 )
 
 type UserPostgresRepository struct {
-	*postgres.Storage
+	db   *sql.DB
 	psql sq.StatementBuilderType
 }
 
-func NewUserPostgresRepository(
-	storage *postgres.Storage,
-) *UserPostgresRepository {
+func NewUserPostgresRepository(db *sql.DB) *UserPostgresRepository {
 	return &UserPostgresRepository{
-		Storage: storage,
-		psql:    sq.StatementBuilder.PlaceholderFormat(sq.Dollar),
+		db:   db,
+		psql: sq.StatementBuilder.PlaceholderFormat(sq.Dollar),
 	}
 }
 
@@ -30,7 +28,7 @@ func (ur *UserPostgresRepository) Add(ctx context.Context, user domain.User) err
 	exec, err := ur.psql.Insert("users").
 		Columns("name", "password", "email").
 		Values(user.Name, user.Password, user.Email).
-		RunWith(ur.DB).
+		RunWith(ur.db).
 		Exec()
 	if err != nil {
 		return err
@@ -47,7 +45,7 @@ func (ur *UserPostgresRepository) GetById(ctx context.Context, id int) (domain.U
 	rows, err := ur.psql.Select("*").
 		From("users").
 		Where(sq.Eq{"user_id": id}).
-		RunWith(ur.DB).
+		RunWith(ur.db).
 		Query()
 	if err != nil {
 		return domain.User{}, err
@@ -66,7 +64,7 @@ func (ur *UserPostgresRepository) GetByEmail(ctx context.Context, email string) 
 	rows, err := ur.psql.Select("*").
 		From("users").
 		Where(sq.Eq{"email": email}).
-		RunWith(ur.DB).
+		RunWith(ur.db).
 		Query()
 	if err != nil {
 		return domain.User{}, err
@@ -85,7 +83,7 @@ func (ur *UserPostgresRepository) UpdatePass(ctx context.Context, id int, hashed
 	exec, err := ur.psql.Update("users").
 		Set("password", hashedPass).
 		Where(sq.Eq{"user_id": id}).
-		RunWith(ur.DB).
+		RunWith(ur.db).
 		Exec()
 	if err != nil {
 		return err
@@ -101,7 +99,7 @@ func (ur *UserPostgresRepository) UpdatePass(ctx context.Context, id int, hashed
 func (ur *UserPostgresRepository) Delete(ctx context.Context, id int) error {
 	exec, err := ur.psql.Delete("users").
 		Where(sq.Eq{"user_id": id}).
-		RunWith(ur.DB).
+		RunWith(ur.db).
 		Exec()
 	if err != nil {
 		return err

@@ -23,12 +23,16 @@ type Auth interface {
 	//Inspect(ctx context.Context, token string) (bool, error)
 }
 
-type AuthImpl struct {
+type AuthService struct {
 	secret string
 	log    logrus.Logger
 }
 
-func (a *AuthImpl) Generate(userId int) (string, error) {
+func NewAuthService(secret string, log logrus.Logger) *AuthService {
+	return &AuthService{secret: secret, log: log}
+}
+
+func (a *AuthService) Generate(userId int) (string, error) {
 	claims := jwt.RegisteredClaims{
 		Issuer:    "quicknotes",
 		Subject:   strconv.Itoa(userId),
@@ -46,7 +50,7 @@ func (a *AuthImpl) Generate(userId int) (string, error) {
 	return t, nil
 }
 
-//func (a *AuthImpl) Inspect(ctx context.Context, token string) (bool, error) {
+//func (a *AuthService) Inspect(ctx context.Context, token string) (bool, error) {
 //	t, err := jwt.ParseWithClaims(token, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
 //		return a.secret, nil
 //	})

@@ -11,18 +11,18 @@ import (
 	"github.com/qrave1/quicknotes/pkg/validator"
 )
 
-type Server struct {
+type NoteServer struct {
 	e *echo.Echo
 }
 
-func NewServer(
+func NewNoteServer(
 	cfg *config.Config,
 	validate validator.Validator,
 	authController controller.Auth,
 	folderController controller.Folder,
 	noteController controller.Note,
-) *Server {
-	s := &Server{e: echo.New()}
+) *NoteServer {
+	s := &NoteServer{e: echo.New()}
 	s.e.Validator = validate
 	s.e.Use(echomiddleware.Recover())
 
@@ -54,10 +54,10 @@ func NewServer(
 	return s
 }
 
-func (s *Server) Run(cfg *config.Config) {
-	go s.e.Start(fmt.Sprintf(":%s", cfg.Server.Port))
+func (s *NoteServer) Run(cfg *config.Config) error {
+	return s.e.Start(fmt.Sprintf(":%s", cfg.Server.Port))
 }
 
-func (s *Server) Shutdown() {
+func (s *NoteServer) Shutdown() {
 	_ = s.e.Shutdown(context.Background())
 }

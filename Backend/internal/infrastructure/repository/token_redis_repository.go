@@ -15,7 +15,7 @@ func (r RedisNotFound) Error() string {
 
 var NotFound = RedisNotFound{}
 
-type AuthTokenRepo interface {
+type AuthToken interface {
 	Get(ctx context.Context, k string) (string, error)
 	Set(ctx context.Context, k, v string) (string, error)
 }

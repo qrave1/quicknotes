@@ -3,7 +3,10 @@ package main
 import (
 	"fmt"
 	"github.com/qrave1/quicknotes/cmd/commands"
+	_ "github.com/qrave1/quicknotes/cmd/commands/migrate"
+	"github.com/qrave1/quicknotes/cmd/factory"
 	"github.com/urfave/cli/v2"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -13,7 +16,11 @@ func main() {
 	app := &cli.App{
 		Name: "app",
 		Action: func(c *cli.Context) error {
-			// todo app di container
+			_, cleanup, err := factory.InitializeService()
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer cleanup()
 
 			sigCh := make(chan os.Signal, 1)
 			signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)

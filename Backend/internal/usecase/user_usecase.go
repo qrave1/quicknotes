@@ -12,14 +12,23 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type UserUsecase struct {
+type UserService struct {
 	userRepo  repositories.User
-	tokenRepo repository.AuthTokenRepo
+	tokenRepo repository.AuthToken
 	auth      auth.Auth
 	log       logrus.Logger
 }
 
-func (u *UserUsecase) SignUp(ctx context.Context, user domain.User) error {
+func NewUserService(
+	userRepo repositories.User,
+	tokenRepo repository.AuthToken,
+	auth auth.Auth,
+	log logrus.Logger,
+) *UserService {
+	return &UserService{userRepo: userRepo, tokenRepo: tokenRepo, auth: auth, log: log}
+}
+
+func (u *UserService) SignUp(ctx context.Context, user domain.User) error {
 	passHash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		u.log.Errorf("error generate hashed password. %v", err)
@@ -30,7 +39,7 @@ func (u *UserUsecase) SignUp(ctx context.Context, user domain.User) error {
 	return u.userRepo.Add(ctx, user)
 }
 
-func (u *UserUsecase) SignIn(ctx context.Context, request domain.User) (string, error) {
+func (u *UserService) SignIn(ctx context.Context, request domain.User) (string, error) {
 	user, err := u.userRepo.GetByEmail(ctx, request.Email)
 	if err != nil {
 		return "", err
@@ -61,14 +70,14 @@ func (u *UserUsecase) SignIn(ctx context.Context, request domain.User) (string, 
 	return token, nil
 }
 
-func (u *UserUsecase) Read(ctx context.Context, id int) (domain.User, error) {
+func (u *UserService) Read(ctx context.Context, id int) (domain.User, error) {
 	return u.userRepo.GetById(ctx, id)
 }
 
-func (u *UserUsecase) Update(ctx context.Context, id int, pass string) error {
+func (u *UserService) Update(ctx context.Context, id int, pass string) error {
 	return u.userRepo.UpdatePass(ctx, id, pass)
 }
 
-func (u *UserUsecase) Delete(ctx context.Context, id int) error {
+func (u *UserService) Delete(ctx context.Context, id int) error {
 	return u.userRepo.Delete(ctx, id)
 }

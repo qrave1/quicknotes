@@ -4,8 +4,10 @@ import (
 	"context"
 	"github.com/pressly/goose/v3"
 	"github.com/qrave1/quicknotes/cmd/commands"
+	"github.com/qrave1/quicknotes/cmd/factory"
 	"github.com/qrave1/quicknotes/internal/storage"
 	"github.com/urfave/cli/v2"
+	"log"
 	"time"
 )
 
@@ -13,10 +15,14 @@ func init() {
 	commands.RegisterCommand(&cli.Command{
 		Name: "migrate",
 		Action: func(c *cli.Context) error {
-			// TODO migrate di container
+			cont, cleanup, err := factory.InitializeMigrationContainer()
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer cleanup()
 
 			goose.SetBaseFS(storage.EmbedMigrations)
-			err := goose.SetDialect("postgres")
+			err = goose.SetDialect("postgres")
 			if err != nil {
 				panic(err)
 			}
@@ -27,8 +33,7 @@ func init() {
 			return goose.RunContext(
 				ctx,
 				c.Args().First(),
-				// todo db from di cont here
-				db,
+				cont.DB(),
 				"migrations",
 				c.Args().Get(1),
 			)

@@ -2,20 +2,20 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/qrave1/quicknotes/internal/domain"
-	"github.com/qrave1/quicknotes/internal/storage/postgres"
 )
 
 type NotePostgresRepository struct {
-	*postgres.Storage
+	db   *sql.DB
 	psql sq.StatementBuilderType
 }
 
-func NewNotePostgresRepository(storage *postgres.Storage) *NotePostgresRepository {
+func NewNotePostgresRepository(db *sql.DB) *NotePostgresRepository {
 	return &NotePostgresRepository{
-		Storage: storage,
-		psql:    sq.StatementBuilder.PlaceholderFormat(sq.Dollar),
+		db:   db,
+		psql: sq.StatementBuilder.PlaceholderFormat(sq.Dollar),
 	}
 }
 
@@ -23,7 +23,7 @@ func (n *NotePostgresRepository) Add(ctx context.Context, note domain.Note) erro
 	exec, err := n.psql.Insert("notes").
 		Columns("title", "body", "folder_id").
 		Values(note.Title, note.Body, note.FolderId).
-		RunWith(n.DB).
+		RunWith(n.db).
 		ExecContext(ctx)
 	if err != nil {
 		return err
@@ -40,7 +40,7 @@ func (n *NotePostgresRepository) GetById(ctx context.Context, id int) (domain.No
 	rows, err := n.psql.Select("*").
 		From("notes").
 		Where(sq.Eq{"note_id": id}).
-		RunWith(n.DB).
+		RunWith(n.db).
 		QueryContext(ctx)
 	if err != nil {
 		return domain.Note{}, err
@@ -58,8 +58,8 @@ func (n *NotePostgresRepository) GetById(ctx context.Context, id int) (domain.No
 func (n *NotePostgresRepository) GetAll(ctx context.Context, folderId int) ([]domain.Note, error) {
 	rows, err := n.psql.Select("*").From("notes").
 		Join("folders ON notes.folder_id = folders.id").
-		Where(sq.Eq{"folders.id": folderId}).
-		RunWith(n.DB).
+		Where(sq.Eq{"folders_id": folderId}).
+		RunWith(n.db).
 		QueryContext(ctx)
 	if err != nil {
 		return nil, err
@@ -85,7 +85,7 @@ func (n *NotePostgresRepository) Update(ctx context.Context, note domain.Note) e
 		query = query.Set("body", note.Body)
 	}
 
-	exec, err := query.Where(sq.Eq{"note_id": note.Id}).RunWith(n.DB).ExecContext(ctx)
+	exec, err := query.Where(sq.Eq{"note_id": note.Id}).RunWith(n.db).ExecContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -100,7 +100,7 @@ func (n *NotePostgresRepository) Update(ctx context.Context, note domain.Note) e
 func (n *NotePostgresRepository) Delete(ctx context.Context, id int) error {
 	exec, err := n.psql.Delete("notes").
 		Where(sq.Eq{"note_id": id}).
-		RunWith(n.DB).
+		RunWith(n.db).
 		ExecContext(ctx)
 	if err != nil {
 		return err

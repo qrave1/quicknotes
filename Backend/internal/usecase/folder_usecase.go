@@ -10,22 +10,22 @@ import (
 	"github.com/qrave1/quicknotes/internal/usecase/repositories"
 )
 
-type FolderUsecase struct {
+type FolderService struct {
 	folderRepo repositories.Folder
 	log        logrus.Logger
 }
 
-func NewFolderUsecase(fr repositories.Folder) *FolderUsecase {
-	return &FolderUsecase{folderRepo: fr}
+func NewFolderService(fr repositories.Folder) *FolderService {
+	return &FolderService{folderRepo: fr}
 }
 
-func (f *FolderUsecase) Create(ctx context.Context, folder domain.Folder) error {
+func (f *FolderService) Create(ctx context.Context, folder domain.Folder) error {
 	folder.UserId = auth.UserIdFromCtx(ctx)
 
 	return f.folderRepo.Add(ctx, folder)
 }
 
-func (f *FolderUsecase) Read(ctx context.Context, id int) (domain.Folder, error) {
+func (f *FolderService) Read(ctx context.Context, id int) (domain.Folder, error) {
 	currentUserId := auth.UserIdFromCtx(ctx)
 
 	folder, err := f.folderRepo.GetById(ctx, id)
@@ -40,10 +40,10 @@ func (f *FolderUsecase) Read(ctx context.Context, id int) (domain.Folder, error)
 	return folder, nil
 }
 
-func (f *FolderUsecase) Update(ctx context.Context, folder domain.Folder) error {
+func (f *FolderService) Update(ctx context.Context, folder domain.Folder) error {
 	return f.folderRepo.Update(ctx, folder)
 }
 
-func (f *FolderUsecase) Delete(ctx context.Context, id int) error {
+func (f *FolderService) Delete(ctx context.Context, id int) error {
 	return f.folderRepo.Delete(ctx, id)
 }
