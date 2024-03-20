@@ -1,6 +1,6 @@
 module github.com/qrave1/quicknotes
 
-go 1.22.1
+go 1.22
 
 require (
 	github.com/Masterminds/squirrel v1.5.4

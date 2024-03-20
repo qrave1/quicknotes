@@ -24,7 +24,5 @@ go.work
 
 Backend/.env
 
-
 # Frontend
-
 Frontend/node_modules
