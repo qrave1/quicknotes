@@ -40,7 +40,7 @@ func (u *UserService) SignUp(ctx context.Context, user domain.User) error {
 }
 
 func (u *UserService) SignIn(ctx context.Context, request domain.User) (string, error) {
-	user, err := u.userRepo.GetByEmail(ctx, request.Email)
+	user, err := u.userRepo.UserByEmail(ctx, request.Email)
 	if err != nil {
 		return "", err
 	}
@@ -49,7 +49,7 @@ func (u *UserService) SignIn(ctx context.Context, request domain.User) (string, 
 		return "", fmt.Errorf("error email does not match")
 	}
 
-	if err = bcrypt.CompareHashAndPassword([]byte(request.Password), []byte(user.Password)); err != nil {
+	if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)); err != nil {
 		u.log.Infof("invalid credentials. user_id=%d", request.Id)
 		return "", err
 	}
@@ -71,7 +71,7 @@ func (u *UserService) SignIn(ctx context.Context, request domain.User) (string, 
 }
 
 func (u *UserService) Read(ctx context.Context, id int) (domain.User, error) {
-	return u.userRepo.GetById(ctx, id)
+	return u.userRepo.UserById(ctx, id)
 }
 
 func (u *UserService) Update(ctx context.Context, id int, pass string) error {

@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	sq "github.com/Masterminds/squirrel"
 	"github.com/qrave1/quicknotes/internal/domain"
 )
 
@@ -13,83 +12,55 @@ var (
 )
 
 type UserPostgresRepository struct {
-	db   *sql.DB
-	psql sq.StatementBuilderType
+	db *sql.DB
 }
 
 func NewUserPostgresRepository(db *sql.DB) *UserPostgresRepository {
 	return &UserPostgresRepository{
-		db:   db,
-		psql: sq.StatementBuilder.PlaceholderFormat(sq.Dollar),
+		db: db,
 	}
 }
 
 func (ur *UserPostgresRepository) Add(ctx context.Context, user domain.User) error {
-	exec, err := ur.psql.Insert("users").
-		Columns("name", "password", "email").
-		Values(user.Name, user.Password, user.Email).
-		RunWith(ur.db).
-		Exec()
-	if err != nil {
-		return err
-	}
-
-	if i, _ := exec.RowsAffected(); i == 0 {
-		return ErrNotAffected
-	}
-
-	return nil
+	query := "INSERT INTO users(username, email, password) VALUES ($1,$2,$3)"
+	return ur.db.QueryRowContext(ctx, query, user.Name, user.Email, user.Password).Err()
 }
 
-func (ur *UserPostgresRepository) GetById(ctx context.Context, id int) (domain.User, error) {
-	rows, err := ur.psql.Select("*").
-		From("users").
-		Where(sq.Eq{"user_id": id}).
-		RunWith(ur.db).
-		Query()
+func (ur *UserPostgresRepository) UserById(ctx context.Context, id int) (domain.User, error) {
+	u := domain.User{}
+	query := "SELECT id, username, email, password FROM users WHERE id = $1"
+	err := ur.db.QueryRowContext(ctx, query, id).Scan(&u.Id, &u.Name, &u.Email, &u.Password)
 	if err != nil {
 		return domain.User{}, err
 	}
 
-	var user domain.User
-	err = rows.Scan(&user)
-	if err != nil {
-		return domain.User{}, err
-	}
-
-	return user, nil
+	return u, nil
 }
 
-func (ur *UserPostgresRepository) GetByEmail(ctx context.Context, email string) (domain.User, error) {
-	rows, err := ur.psql.Select("*").
-		From("users").
-		Where(sq.Eq{"email": email}).
-		RunWith(ur.db).
-		Query()
+func (ur *UserPostgresRepository) UserByEmail(ctx context.Context, email string) (domain.User, error) {
+	u := domain.User{}
+	query := "SELECT id, username, email, password FROM users WHERE email = $1"
+	err := ur.db.QueryRowContext(ctx, query, email).Scan(&u.Id, &u.Name, &u.Email, &u.Password)
 	if err != nil {
 		return domain.User{}, err
 	}
 
-	var user domain.User
-	err = rows.Scan(&user)
-	if err != nil {
-		return domain.User{}, err
-	}
-
-	return user, nil
+	return u, nil
 }
 
 func (ur *UserPostgresRepository) UpdatePass(ctx context.Context, id int, hashedPass string) error {
-	exec, err := ur.psql.Update("users").
-		Set("password", hashedPass).
-		Where(sq.Eq{"user_id": id}).
-		RunWith(ur.db).
-		Exec()
+	query := "UPDATE users SET password = $1 WHERE id = $2"
+	res, err := ur.db.ExecContext(ctx, query, hashedPass, id)
 	if err != nil {
 		return err
 	}
 
-	if i, _ := exec.RowsAffected(); i == 0 {
+	affected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if affected == 0 {
 		return ErrNotAffected
 	}
 
@@ -97,15 +68,18 @@ func (ur *UserPostgresRepository) UpdatePass(ctx context.Context, id int, hashed
 }
 
 func (ur *UserPostgresRepository) Delete(ctx context.Context, id int) error {
-	exec, err := ur.psql.Delete("users").
-		Where(sq.Eq{"user_id": id}).
-		RunWith(ur.db).
-		Exec()
+	query := "DELETE FROM users WHERE id = $1"
+	res, err := ur.db.ExecContext(ctx, query, id)
 	if err != nil {
 		return err
 	}
 
-	if i, _ := exec.RowsAffected(); i == 0 {
+	affected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if affected == 0 {
 		return ErrNotAffected
 	}
 

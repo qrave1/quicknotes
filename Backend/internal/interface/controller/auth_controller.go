@@ -62,7 +62,7 @@ func (a *AuthController) HandleSignIn(c echo.Context) error {
 
 	token, err := a.userUsecase.SignIn(ctx, user)
 	if err != nil {
-		a.log.Errorf("error create new user. %v", err)
+		a.log.Errorf("error signin user. %v", err)
 		return err
 	}
 

@@ -1,5 +1,3 @@
-/* noinspection SqlNoDataSourceInspectionForFile */
-
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE users
