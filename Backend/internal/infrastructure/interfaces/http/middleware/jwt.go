@@ -9,17 +9,9 @@ import (
 	"strconv"
 )
 
-const (
-	authorizationHeader = "X-Auth-Token"
-)
-
 func JwtMiddleware(secret []byte) echo.MiddlewareFunc {
 	return echojwt.WithConfig(echojwt.Config{
-		//BeforeFunc: func(e echo.Context) {
-		//	e.Request().Header.Set(authorizationHeader, "Bearer "+e.Request().Header.Get(authorizationHeader))
-		//},
-		SigningKey:  secret,
-		TokenLookup: "header:" + authorizationHeader,
+		SigningKey: secret,
 		ErrorHandler: func(c echo.Context, err error) error {
 			return c.JSON(http.StatusUnauthorized, echo.Map{"error": "Unauthorized"})
 		},
@@ -29,19 +21,18 @@ func JwtMiddleware(secret []byte) echo.MiddlewareFunc {
 				return
 			}
 
-			claims, ok := user.Claims.(*jwt.RegisteredClaims)
-			if !ok {
+			subj, err := user.Claims.(jwt.MapClaims).GetSubject()
+			if err != nil {
 				return
 			}
 
-			id, err := strconv.Atoi(claims.Subject)
+			id, err := strconv.Atoi(subj)
 			if err != nil {
 				return
 			}
 
 			ctx := auth.SetUserId(c.Request().Context(), id)
 			c.SetRequest(c.Request().WithContext(ctx))
-			//c.Set(CurrentUserKey, claims.Subject)
 		},
 	})
 }

@@ -26,11 +26,10 @@ func (c CreateFolderRequest) GetUserId() int {
 
 type UpdateFolderRequest struct {
 	Name string `json:"name" validate:"required"`
-	Id   int    `path:"id" validate:"required"`
 }
 
 func (u UpdateFolderRequest) GetId() int {
-	return u.Id
+	return 0
 }
 
 func (u UpdateFolderRequest) GetName() string {

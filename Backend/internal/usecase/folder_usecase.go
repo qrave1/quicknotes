@@ -25,7 +25,7 @@ func (f *FolderService) Create(ctx context.Context, folder domain.Folder) error 
 	return f.folderRepo.Add(ctx, folder)
 }
 
-func (f *FolderService) Read(ctx context.Context, id int) (domain.Folder, error) {
+func (f *FolderService) FolderById(ctx context.Context, id int) (domain.Folder, error) {
 	currentUserId := auth.UserIdFromCtx(ctx)
 
 	folder, err := f.folderRepo.GetById(ctx, id)
@@ -38,6 +38,23 @@ func (f *FolderService) Read(ctx context.Context, id int) (domain.Folder, error)
 	}
 
 	return folder, nil
+}
+
+func (f *FolderService) Folders(ctx context.Context) ([]domain.Folder, error) {
+	currentUserId := auth.UserIdFromCtx(ctx)
+
+	folders, err := f.folderRepo.GetAll(ctx, currentUserId)
+	if err != nil {
+		return nil, fmt.Errorf("error get folder from repo. %w", err)
+	}
+
+	for _, folder := range folders {
+		if folder.UserId != currentUserId {
+			return nil, errors.ForbiddenError
+		}
+	}
+
+	return folders, nil
 }
 
 func (f *FolderService) Update(ctx context.Context, folder domain.Folder) error {

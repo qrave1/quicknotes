@@ -3,33 +3,32 @@ package repository
 import (
 	"context"
 	"database/sql"
-	sq "github.com/Masterminds/squirrel"
 	"github.com/qrave1/quicknotes/internal/domain"
 )
 
 type FolderPostgresRepository struct {
-	db   *sql.DB
-	psql sq.StatementBuilderType
+	db *sql.DB
 }
 
 func NewFolderPostgresRepository(db *sql.DB) *FolderPostgresRepository {
 	return &FolderPostgresRepository{
-		db:   db,
-		psql: sq.StatementBuilder.PlaceholderFormat(sq.Dollar),
+		db: db,
 	}
 }
 
 func (f *FolderPostgresRepository) Add(ctx context.Context, folder domain.Folder) error {
-	exec, err := f.psql.Insert("folders").
-		Columns("name", "user_id").
-		Values(folder.Name, folder.UserId).
-		RunWith(f.db).
-		ExecContext(ctx)
+	query := "INSERT INTO folders(name, user_id) VALUES ($1,$2)"
+	res, err := f.db.ExecContext(ctx, query, folder.Name, folder.UserId)
 	if err != nil {
 		return err
 	}
 
-	if i, _ := exec.RowsAffected(); i == 0 {
+	affected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if affected == 0 {
 		return ErrNotAffected
 	}
 
@@ -37,17 +36,9 @@ func (f *FolderPostgresRepository) Add(ctx context.Context, folder domain.Folder
 }
 
 func (f *FolderPostgresRepository) GetById(ctx context.Context, id int) (domain.Folder, error) {
-	rows, err := f.psql.Select("*").
-		From("folders").
-		Where(sq.Eq{"folder_id": id}).
-		RunWith(f.db).
-		QueryContext(ctx)
-	if err != nil {
-		return domain.Folder{}, err
-	}
-
-	var folder domain.Folder
-	err = rows.Scan(&folder)
+	folder := domain.Folder{}
+	query := "SELECT id, name, user_id FROM folders WHERE id = $1"
+	err := f.db.QueryRowContext(ctx, query, id).Scan(&folder.Id, &folder.Name, &folder.UserId)
 	if err != nil {
 		return domain.Folder{}, err
 	}
@@ -56,37 +47,42 @@ func (f *FolderPostgresRepository) GetById(ctx context.Context, id int) (domain.
 }
 
 func (f *FolderPostgresRepository) GetAll(ctx context.Context, userId int) ([]domain.Folder, error) {
-	rows, err := f.psql.Select("*").From("folders").
-		Join("users u ON folders.user_id = u.id").
-		Where(sq.Eq{"user_id": userId}).
-		RunWith(f.db).
-		QueryContext(ctx)
+	query := `SELECT f.id, f.name, f.user_id
+				FROM users u
+				    INNER JOIN folders f ON f.user_id = u.id
+				    	WHERE f.user_id = $1
+				    		ORDER BY f.id`
+	rows, err := f.db.QueryContext(ctx, query, userId)
 	if err != nil {
 		return nil, err
 	}
 
-	var folders []domain.Folder
-	err = rows.Scan(&folders)
-	if err != nil {
-		return nil, err
+	var userFolders []domain.Folder
+	for rows.Next() {
+		var uf domain.Folder
+		err := rows.Scan(&uf.Id, &uf.Name, &uf.UserId)
+		if err != nil {
+			return nil, err
+		}
+		userFolders = append(userFolders, uf)
 	}
 
-	return folders, nil
+	return userFolders, nil
 }
 
 func (f *FolderPostgresRepository) Update(ctx context.Context, folder domain.Folder) error {
-	query := f.psql.Update("folders")
-
-	if folder.Name != "" {
-		query = query.Set("name", folder.Name)
-	}
-
-	exec, err := query.Where(sq.Eq{"folder_id": folder.Id}).RunWith(f.db).ExecContext(ctx)
+	query := "UPDATE folders SET name = $1 WHERE id = $2"
+	res, err := f.db.ExecContext(ctx, query, folder.Name, folder.Id)
 	if err != nil {
 		return err
 	}
 
-	if i, _ := exec.RowsAffected(); i == 0 {
+	affected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if affected == 0 {
 		return ErrNotAffected
 	}
 
@@ -94,15 +90,18 @@ func (f *FolderPostgresRepository) Update(ctx context.Context, folder domain.Fol
 }
 
 func (f *FolderPostgresRepository) Delete(ctx context.Context, id int) error {
-	exec, err := f.psql.Delete("folders").
-		Where(sq.Eq{"folder_id": id}).
-		RunWith(f.db).
-		ExecContext(ctx)
+	query := "DELETE FROM folders WHERE id = $1"
+	res, err := f.db.ExecContext(ctx, query, id)
 	if err != nil {
 		return err
 	}
 
-	if i, _ := exec.RowsAffected(); i == 0 {
+	affected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if affected == 0 {
 		return ErrNotAffected
 	}
 

@@ -12,7 +12,7 @@ type NoteRequest interface {
 type CreateNoteRequest struct {
 	Title    string `json:"title" validate:"required"`
 	Body     string `json:"body" validate:"required"`
-	FolderId int    `path:"folder_id" validate:"required"`
+	FolderId int    `param:"folder_id" validate:"required"`
 }
 
 func (c CreateNoteRequest) GetId() int {
@@ -36,14 +36,14 @@ func (c CreateNoteRequest) GetFolderId() int {
 }
 
 type UpdateNoteRequest struct {
-	Id       int    `path:"id" validate:"required"`
+	Id       int    `param:"id" validate:"required"`
 	Title    string `json:"title" validate:"required"`
 	Body     string `json:"body" validate:"required"`
-	FolderId int    `path:"folder_id" validate:"required"`
+	FolderId int    `param:"folder_id" validate:"required"`
 }
 
 func (c UpdateNoteRequest) GetId() int {
-	return 0
+	return c.Id
 }
 
 func (c UpdateNoteRequest) GetTitle() string {
@@ -59,8 +59,8 @@ func (c UpdateNoteRequest) GetFolderId() int {
 }
 
 type DefaultNoteRequest struct {
-	NoteId   int `path:"id"`
-	FolderId int `path:"folder_id" validate:"required"`
+	NoteId   int `param:"id"`
+	FolderId int `param:"folder_id" validate:"required"`
 }
 
 func (d DefaultNoteRequest) GetId() int {

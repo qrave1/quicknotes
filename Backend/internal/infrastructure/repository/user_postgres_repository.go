@@ -23,7 +23,21 @@ func NewUserPostgresRepository(db *sql.DB) *UserPostgresRepository {
 
 func (ur *UserPostgresRepository) Add(ctx context.Context, user domain.User) error {
 	query := "INSERT INTO users(username, email, password) VALUES ($1,$2,$3)"
-	return ur.db.QueryRowContext(ctx, query, user.Name, user.Email, user.Password).Err()
+	res, err := ur.db.ExecContext(ctx, query, user.Name, user.Email, user.Password)
+	if err != nil {
+		return err
+	}
+
+	affected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if affected == 0 {
+		return ErrNotAffected
+	}
+
+	return nil
 }
 
 func (ur *UserPostgresRepository) UserById(ctx context.Context, id int) (domain.User, error) {

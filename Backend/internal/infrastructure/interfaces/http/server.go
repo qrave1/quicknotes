@@ -28,28 +28,24 @@ func NewNoteServer(
 
 	jwt := middleware.JwtMiddleware([]byte(cfg.Server.Secret))
 
+	// AUTH
 	auth := s.e.Group("")
-	{
-		auth.POST("/signup", authController.HandleSignUp)
-		auth.POST("/signin", authController.HandleSignIn)
-	}
+	auth.POST("/signup", authController.HandleSignUp)
+	auth.POST("/signin", authController.HandleSignIn)
 
-	folders := s.e.Group("/folders", jwt)
-	{
-		folders.GET("/:id", folderController.HandleReadFolder)
-		folders.POST("/", folderController.HandleCreateFolder)
-		folders.PUT("/:id", folderController.HandleUpdateFolder)
-		folders.DELETE("/:id", folderController.HandleDeleteFolder)
-	}
+	// FOLDERS
+	s.e.GET("/folders/:id", folderController.HandleReadFolder, jwt)
+	s.e.GET("/folders", folderController.HandleReadFolders, jwt)
+	s.e.POST("/folders", folderController.HandleCreateFolder, jwt)
+	s.e.PUT("/folders/:id", folderController.HandleUpdateFolder, jwt)
+	s.e.DELETE("/folders/:id", folderController.HandleDeleteFolder, jwt)
 
-	notes := s.e.Group("folders/:folder_id/notes", jwt)
-	{
-		notes.GET("/:id", noteController.HandleReadNote)
-		notes.GET("/", noteController.HandleReadAll)
-		notes.POST("/", noteController.HandleCreateNote)
-		notes.PUT("/:id", noteController.HandleUpdateNote)
-		notes.DELETE("/:id", noteController.HandleDeleteNote)
-	}
+	// NOTES
+	s.e.GET("/folders/:folder_id/notes/:id", noteController.HandleReadNote, jwt)
+	s.e.GET("/folders/:folder_id/notes", noteController.HandleReadAll, jwt)
+	s.e.POST("/folders/:folder_id/notes", noteController.HandleCreateNote, jwt)
+	s.e.PUT("/folders/:folder_id/notes/:id", noteController.HandleUpdateNote, jwt)
+	s.e.DELETE("/folders/:folder_id/notes/:id", noteController.HandleDeleteNote, jwt)
 
 	return s
 }

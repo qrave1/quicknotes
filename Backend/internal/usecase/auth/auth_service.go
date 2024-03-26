@@ -11,7 +11,10 @@ import (
 const CurrentUserKey = "userId"
 
 func UserIdFromCtx(ctx context.Context) int {
-	return ctx.Value(CurrentUserKey).(int)
+	if id, ok := ctx.Value(CurrentUserKey).(int); ok {
+		return id
+	}
+	return 0
 }
 
 func SetUserId(ctx context.Context, id int) context.Context {

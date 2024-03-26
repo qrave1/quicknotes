@@ -5,7 +5,6 @@ import (
 	"github.com/qrave1/logwrap"
 	"github.com/qrave1/quicknotes/internal/domain"
 	"github.com/qrave1/quicknotes/internal/infrastructure/interfaces/http/dto"
-	"github.com/qrave1/quicknotes/internal/usecase/auth"
 	"net/http"
 	"strconv"
 )
@@ -13,6 +12,7 @@ import (
 type Folder interface {
 	HandleCreateFolder(c echo.Context) error
 	HandleReadFolder(c echo.Context) error
+	HandleReadFolders(c echo.Context) error
 	HandleUpdateFolder(c echo.Context) error
 	HandleDeleteFolder(c echo.Context) error
 }
@@ -40,7 +40,6 @@ func (f *FolderController) HandleCreateFolder(c echo.Context) error {
 	}
 
 	folder := dto.FolderFromDTO(request)
-	folder.UserId = auth.UserIdFromCtx(ctx)
 
 	if err := f.folderUsecase.Create(ctx, folder); err != nil {
 		f.log.Errorf("error create folder. %v", err)
@@ -59,21 +58,40 @@ func (f *FolderController) HandleReadFolder(c echo.Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
-	folder, err := f.folderUsecase.Read(ctx, id)
+	folder, err := f.folderUsecase.FolderById(ctx, id)
 	if err != nil {
-
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"error": err,
+		})
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"folder": folder,
-	})
+	return c.JSON(http.StatusOK, folder)
+}
+
+func (f *FolderController) HandleReadFolders(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	folders, err := f.folderUsecase.Folders(ctx)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"error": err,
+		})
+	}
+
+	return c.JSON(http.StatusOK, folders)
 }
 
 func (f *FolderController) HandleUpdateFolder(c echo.Context) error {
 	ctx := c.Request().Context()
 
+	v := c.Param("id")
+	id, err := strconv.Atoi(v)
+	if err != nil {
+		return c.NoContent(http.StatusBadRequest)
+	}
+
 	var request dto.UpdateFolderRequest
-	if err := c.Bind(request); err != nil {
+	if err := c.Bind(&request); err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
@@ -82,6 +100,7 @@ func (f *FolderController) HandleUpdateFolder(c echo.Context) error {
 	}
 
 	folder := dto.FolderFromDTO(request)
+	folder.Id = id
 
 	if err := f.folderUsecase.Update(ctx, folder); err != nil {
 		return err

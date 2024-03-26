@@ -65,9 +65,7 @@ func (n *NoteController) HandleReadNote(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"note": note,
-	})
+	return c.JSON(http.StatusOK, note)
 }
 
 func (n *NoteController) HandleReadAll(c echo.Context) error {
@@ -88,9 +86,7 @@ func (n *NoteController) HandleReadAll(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"notes": notes,
-	})
+	return c.JSON(http.StatusOK, notes)
 }
 
 func (n *NoteController) HandleUpdateNote(c echo.Context) error {
