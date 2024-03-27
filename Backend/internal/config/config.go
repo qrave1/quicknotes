@@ -26,13 +26,10 @@ type postgresConfig struct {
 
 // Load config from env
 func MustLoad() *Config {
-	err := godotenv.Load()
-	if err != nil {
-		panic(err)
-	}
+	_ = godotenv.Load()
 
 	var c Config
-	err = cleanenv.ReadEnv(&c)
+	err := cleanenv.ReadEnv(&c)
 	if err != nil {
 		panic(err)
 	}
