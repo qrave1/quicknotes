@@ -16,23 +16,20 @@ func NewFolderPostgresRepository(db *sql.DB) *FolderPostgresRepository {
 	}
 }
 
-func (f *FolderPostgresRepository) Add(ctx context.Context, folder domain.Folder) error {
-	query := "INSERT INTO folders(name, user_id) VALUES ($1,$2)"
-	res, err := f.db.ExecContext(ctx, query, folder.Name, folder.UserId)
+func (f *FolderPostgresRepository) Add(ctx context.Context, folder domain.Folder) (int, error) {
+	query := "INSERT INTO folders(name, user_id) VALUES ($1,$2) RETURNING id"
+	res := f.db.QueryRowContext(ctx, query, folder.Name, folder.UserId)
+	if res.Err() != nil {
+		return 0, res.Err()
+	}
+
+	var id int64
+	err := res.Scan(&id)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
-	affected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	}
-
-	if affected == 0 {
-		return ErrNotAffected
-	}
-
-	return nil
+	return int(id), nil
 }
 
 func (f *FolderPostgresRepository) GetById(ctx context.Context, id int) (domain.Folder, error) {

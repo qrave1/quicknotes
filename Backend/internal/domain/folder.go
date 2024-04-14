@@ -9,7 +9,7 @@ type Folder struct {
 }
 
 type FolderUsecase interface {
-	Create(ctx context.Context, f Folder) error
+	Create(ctx context.Context, f Folder) (int, error)
 	FolderById(ctx context.Context, id int) (Folder, error)
 	Folders(ctx context.Context) ([]Folder, error)
 	Update(ctx context.Context, f Folder) error

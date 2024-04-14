@@ -19,7 +19,7 @@ func NewFolderService(fr repositories.Folder, log logwrap.Logger) *FolderService
 	return &FolderService{folderRepo: fr, log: log}
 }
 
-func (f *FolderService) Create(ctx context.Context, folder domain.Folder) error {
+func (f *FolderService) Create(ctx context.Context, folder domain.Folder) (int, error) {
 	folder.UserId = auth.UserIdFromCtx(ctx)
 
 	return f.folderRepo.Add(ctx, folder)
