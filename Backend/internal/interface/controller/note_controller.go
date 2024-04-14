@@ -41,14 +41,15 @@ func (n *NoteController) HandleCreateNote(c echo.Context) error {
 
 	note := dto.NoteFromDTO(request)
 
-	if err := n.noteUsecase.Create(ctx, note); err != nil {
-		n.log.Errorf("error create folder. %v", err)
+	id, err := n.noteUsecase.Create(ctx, note)
+	if err != nil {
+		n.log.Errorf("error create note. %v", err)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": err.Error(),
 		})
 	}
 
-	return c.NoContent(http.StatusCreated)
+	return c.JSON(http.StatusCreated, echo.Map{"id": id})
 }
 
 func (n *NoteController) HandleReadNote(c echo.Context) error {

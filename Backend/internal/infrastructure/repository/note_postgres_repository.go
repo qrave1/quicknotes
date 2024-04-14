@@ -16,23 +16,20 @@ func NewNotePostgresRepository(db *sql.DB) *NotePostgresRepository {
 	}
 }
 
-func (n *NotePostgresRepository) Add(ctx context.Context, note domain.Note) error {
-	query := "INSERT INTO notes(title, body, folder_id) VALUES ($1,$2,$3)"
-	res, err := n.db.ExecContext(ctx, query, note.Title, note.Body, note.FolderId)
+func (n *NotePostgresRepository) Add(ctx context.Context, note domain.Note) (int, error) {
+	query := "INSERT INTO notes(title, body, folder_id) VALUES ($1,$2,$3) RETURNING id"
+	res := n.db.QueryRowContext(ctx, query, note.Title, note.Body, note.FolderId)
+	if res.Err() != nil {
+		return 0, res.Err()
+	}
+
+	var id int64
+	err := res.Scan(&id)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
-	affected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	}
-
-	if affected == 0 {
-		return ErrNotAffected
-	}
-
-	return nil
+	return int(id), nil
 }
 
 func (n *NotePostgresRepository) GetById(ctx context.Context, id int) (domain.Note, error) {

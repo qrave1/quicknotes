@@ -14,7 +14,7 @@ func NewNoteService(nr repositories.Note) *NoteService {
 	return &NoteService{noteRepo: nr}
 }
 
-func (n *NoteService) Create(ctx context.Context, note domain.Note) error {
+func (n *NoteService) Create(ctx context.Context, note domain.Note) (int, error) {
 	return n.noteRepo.Add(ctx, note)
 }
 
