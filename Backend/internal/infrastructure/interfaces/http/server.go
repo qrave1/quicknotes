@@ -25,6 +25,7 @@ func NewNoteServer(
 	s := &NoteServer{e: echo.New()}
 	s.e.Validator = validate
 	s.e.Use(echomiddleware.Recover())
+	s.e.Use(echomiddleware.CORSWithConfig(echomiddleware.DefaultCORSConfig))
 
 	jwt := middleware.JwtMiddleware([]byte(cfg.Server.Secret))
 
