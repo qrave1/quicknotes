@@ -26,13 +26,13 @@ func (s *SignInRequest) GetPassword() string {
 }
 
 type SignUpRequest struct {
-	Name     string `form:"name" validate:"required"`
+	Username string `form:"username" validate:"required"`
 	Email    string `form:"email" validate:"required,email"`
 	Password string `form:"password" validate:"required,min=8,max=30"`
 }
 
 func (s *SignUpRequest) GetName() string {
-	return s.Name
+	return s.Username
 }
 
 func (s *SignUpRequest) GetEmail() string {

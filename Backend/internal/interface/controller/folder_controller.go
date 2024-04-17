@@ -41,12 +41,13 @@ func (f *FolderController) HandleCreateFolder(c echo.Context) error {
 
 	folder := dto.FolderFromDTO(request)
 
-	if err := f.folderUsecase.Create(ctx, folder); err != nil {
+	id, err := f.folderUsecase.Create(ctx, folder)
+	if err != nil {
 		f.log.Errorf("error create folder. %v", err)
 		return err
 	}
 
-	return c.NoContent(http.StatusCreated)
+	return c.JSON(http.StatusCreated, echo.Map{"id": id})
 }
 
 func (f *FolderController) HandleReadFolder(c echo.Context) error {
