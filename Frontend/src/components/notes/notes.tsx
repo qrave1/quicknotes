@@ -8,7 +8,7 @@ import Folder_modal from "./folder_modal.tsx";
 import Note_modal from "./note_modal.tsx";
 
 const authKey = "X-Auth-Token"
-const apiBaseUrl = "http://localhost:8080/folders";
+const apiBaseUrl = "https://quicknotes-ee54.onrender.com/folders";
 
 export type Note = {
     Id: number;
@@ -244,7 +244,9 @@ function Notes() {
                             }
                         }
                     );
-
+                    if (response.status === 200) {
+                        alert("Запись сохранена")
+                    }
                     // stub
                     if (response.status === 418) {
                         console.log(418)

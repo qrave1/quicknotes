@@ -4,7 +4,7 @@ import styles from './auth.module.css'
 import {useNavigate} from "react-router-dom";
 
 const authKey = "X-Auth-Token"
-const apiBaseUrl = "http://localhost:8080/signup";
+const apiBaseUrl = "https://quicknotes-ee54.onrender.com/signup";
 
 interface SignUpFormState {
     username: string;
