@@ -1,0 +1,47 @@
+.formContainer {
+
+}
+
+.form {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50%;
+
+
+    /*margin: 0 auto;*/
+    max-width: 300px;
+    border: 1px solid white;
+    padding: 30px;
+}
+
+.formItem {
+    margin-bottom: 10px;
+}
+
+.formLabel {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.formInput {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.formButtonContainer {
+    display: flex;
+    justify-content: center;
+}
+
+.formButton {
+    padding: 10px 20px;
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
