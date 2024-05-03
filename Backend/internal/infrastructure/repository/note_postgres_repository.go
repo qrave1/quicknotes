@@ -67,8 +67,8 @@ func (n *NotePostgresRepository) GetAll(ctx context.Context, folderId int) ([]do
 }
 
 func (n *NotePostgresRepository) Update(ctx context.Context, note domain.Note) error {
-	query := "UPDATE notes SET title = $1, body = $2 WHERE id = $3"
-	res, err := n.db.ExecContext(ctx, query, note.Title, note.Body, note.Id)
+	query := "UPDATE notes SET body = $1 WHERE id = $2"
+	res, err := n.db.ExecContext(ctx, query, note.Body, note.Id)
 	if err != nil {
 		return err
 	}

@@ -59,6 +59,8 @@ func mustProvideRedis(cfg *config.Config, log logwrap.Logger) *redis.Client {
 		panic(fmt.Errorf("error ping redis db. %w", err))
 	}
 
+	_ = cli.FlushAll(context.Background()).Err()
+
 	log.Info("successfully connected to redis db")
 
 	return cli
